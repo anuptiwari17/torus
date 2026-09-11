@@ -82,6 +82,10 @@ void Server::start(){
 
     char buffer[1024];
 
+std::string inputBuffer;
+
+while (true) {
+
     int bytesReceived = recv(
         clientSocket,
         buffer,
@@ -89,19 +93,44 @@ void Server::start(){
         0
     );
 
-    if(bytesReceived > 0){
+    if (bytesReceived <= 0) {
+        break;
+    }
 
-        buffer[bytesReceived] = '\0';
+    buffer[bytesReceived] = '\0';
 
-        std::string input(buffer);
+    inputBuffer += buffer;
 
-        std::cout << "Received: " << input << '\n';
+    size_t newlinePosition;
 
-        try{
+    while (
+        (newlinePosition = inputBuffer.find('\n'))
+        != std::string::npos
+    ) {
+
+        std::string input =
+            inputBuffer.substr(0, newlinePosition);
+
+        inputBuffer.erase(
+            0,
+            newlinePosition + 1
+        );
+
+        if (input.empty()) {
+            continue;
+        }
+
+        std::cout << "Received: "
+                  << input << '\n';
+
+        try {
+
             Command command = parser.parse(input);
 
             std::string response =
                 executor.execute(command);
+
+            response += '\n';
 
             send(
                 clientSocket,
@@ -110,10 +139,12 @@ void Server::start(){
                 0
             );
         }
-        catch(const std::exception& e){
+        catch (const std::exception& e) {
 
             std::string error =
                 "ERR " + std::string(e.what());
+
+            error += '\n';
 
             send(
                 clientSocket,
@@ -123,7 +154,7 @@ void Server::start(){
             );
         }
     }
-
+}
     closesocket(clientSocket);
 }
 

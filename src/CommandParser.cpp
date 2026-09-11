@@ -1,9 +1,10 @@
 #include "CommandParser.h"
+
 #include <sstream>
 #include <stdexcept>
-#include<algorithm>
+#include <algorithm>
+#include <cctype>
 
-//this anonnymous nampespacemeans ye helper is private to this .cpp file
 namespace {
 
 std::string toUpper(std::string value) {
@@ -21,36 +22,70 @@ std::string toUpper(std::string value) {
 
 }
 
+Command CommandParser::parse(const std::string& input) {
 
-
-
-
-Command CommandParser::parse(const std::string& input){
     std::stringstream ss(input);
 
     std::string command;
     std::string key;
     std::string value;
+    std::string extra;
 
     ss >> command;
 
-    if(command == "SET"){
-        ss>>key>>value;
+    if (command.empty()) {
+        throw std::invalid_argument("Empty command");
+    }
+
+    command = toUpper(command);
+
+    if (command == "SET") {
+
+        if (!(ss >> key >> value)) {
+            throw std::invalid_argument(
+                "SET requires key and value"
+            );
+        }
+
+        if (ss >> extra) {
+            throw std::invalid_argument(
+                "SET accepts exactly one key and one value"
+            );
+        }
+
         return {CommandType::SET, key, value};
     }
 
-    if(command== "GET"){
-        ss>>key;
+    if (command == "GET") {
+
+        if (!(ss >> key) || (ss >> extra)) {
+            throw std::invalid_argument(
+                "GET requires exactly one key"
+            );
+        }
+
         return {CommandType::GET, key, ""};
     }
 
-    if(command == "REMOVE"){
-        ss>>key;
+    if (command == "REMOVE") {
+
+        if (!(ss >> key) || (ss >> extra)) {
+            throw std::invalid_argument(
+                "REMOVE requires exactly one key"
+            );
+        }
+
         return {CommandType::REMOVE, key, ""};
     }
 
-    if(command == "EXISTS"){
-        ss>>key;
+    if (command == "EXISTS") {
+
+        if (!(ss >> key) || (ss >> extra)) {
+            throw std::invalid_argument(
+                "EXISTS requires exactly one key"
+            );
+        }
+
         return {CommandType::EXISTS, key, ""};
     }
 

@@ -26,3 +26,115 @@ CommandExecutor obj(store);    // ✅
 ### **In one line:** `explicit` = *"Don't automatically convert; make the construction intentional."*
 
 
+
+
+
+
+
+
+# TILL NOWWWWWWWWW
+
+### 🧠 Torus: Mini Redis-like Data Server
+
+**1. Key-Value Store**
+
+* Used `unordered_map` to store `key → value`.
+* Implemented:
+
+  * `SET`
+  * `GET`
+  * `REMOVE`
+  * `EXISTS`
+* Average lookup/insert/delete: **O(1)**.
+
+**2. Command Parser**
+
+* Converts command to uppercase, so `set`, `SET`, `SeT` all work.
+* Checks whether commands have the correct arguments.
+* Example:
+
+  ```text
+  SET age 18     → valid
+  SET age        → error
+  GET age extra  → error
+  ```
+
+**3. Command Executor**
+
+* Takes the parsed command.
+* Calls the appropriate `KeyValueStore` function.
+* Keeps parsing separate from actual data operations.
+
+**4. TCP Networking**
+Learned the basic server flow:
+
+```text
+socket()
+   ↓
+bind()
+   ↓
+listen()
+   ↓
+accept()
+   ↓
+recv()
+   ↓
+send()
+```
+
+* `IP` → identifies the machine.
+* `Port` → identifies the service.
+* `127.0.0.1:6379` → our local server.
+* TCP gives reliable, ordered communication.
+
+**5. Client ↔ Server**
+Our client connects to the server and sends commands:
+
+```text
+Client → "SET name anup"
+Server → "OK"
+```
+
+**6. Persistent Connection**
+Instead of handling only one command, we added a loop:
+
+```text
+recv → parse → execute → send
+              ↑          ↓
+              └──────────┘
+```
+
+So one client can execute multiple commands without reconnecting.
+
+**7. Message Framing**
+Important networking issue: **TCP is a byte stream, not a message system.**
+
+So we decided:
+
+```text
+SET name anup\n
+GET name\n
+```
+
+`'\n'` marks the end of a command.
+
+The server stores incoming data in a buffer and extracts commands whenever it finds `\n`.
+
+---
+
+### 🚀 Current status
+
+```text
+✅ Key-value storage
+✅ Command parsing
+✅ Command validation
+✅ Command execution
+✅ TCP server
+✅ TCP client
+✅ Multiple commands per connection
+✅ Basic message framing
+```
+
+### Next
+
+**Multiple clients → server loop → threads → mutex/concurrency.**

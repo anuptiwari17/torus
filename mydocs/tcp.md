@@ -137,3 +137,14 @@ WSACleanup
 
 ### ROUGHLY MEANS "Initialize Winsock version 2.2 and put the resulting information into wsaData."
 
+
+
+
+## ABHI 1 command per connection ka setup done ho gya,  we call recv() only once.  Instead we need a loop for    
+### while (true) {
+###     recv();
+###     execute();
+###     send();
+### }
+
+### DONEEEEEEEEEE  THIS THING!!
