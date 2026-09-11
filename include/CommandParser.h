@@ -5,7 +5,7 @@
 enum class CommandType {
     SET,
     GET,
-    DELETE,
+    REMOVE,
     EXISTS
 };
 

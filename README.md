@@ -9,7 +9,7 @@ The project is being developed incrementally to understand how systems like Redi
 * In-memory key-value storage
 * `SET` command
 * `GET` command
-* `DELETE` command
+* `REMOVE` command
 * `EXISTS` command
 * Command parsing and validation
 * Separate command execution layer
@@ -154,10 +154,10 @@ Response:
 1
 ```
 
-### DELETE
+### REMOVE
 
 ```text
-DELETE name
+REMOVE name
 ```
 
 Response:
@@ -189,7 +189,7 @@ Nitin
 > EXISTS name
 1
 
-> DELETE name
+> REMOVE name
 1
 
 > GET name

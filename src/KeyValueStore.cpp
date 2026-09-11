@@ -1,7 +1,7 @@
 #include "KeyValueStore.h"
 
 
-//average complexity in unordered_set : SET => O(1), GET => O(1), EXISTS => O(1), DELETE => O(1)
+//average complexity in unordered_set : SET => O(1), GET => O(1), EXISTS => O(1), REMOVE => O(1)
 void KeyValueStore::set(const std::string& key, const std::string& value){
     data[key] = value;
 }

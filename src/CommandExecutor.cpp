@@ -14,7 +14,7 @@ std::string CommandExecutor::execute(const Command& command) {
         case CommandType::GET:
             return store.get(command.key);
 
-        case CommandType::DELETE:
+        case CommandType::REMOVE:
             return store.remove(command.key) ? "1" : "0";
 
         case CommandType::EXISTS:

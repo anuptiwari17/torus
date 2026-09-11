@@ -44,9 +44,9 @@ Command CommandParser::parse(const std::string& input){
         return {CommandType::GET, key, ""};
     }
 
-    if(command == "DELETE"){
+    if(command == "REMOVE"){
         ss>>key;
-        return {CommandType::DELETE, key, ""};
+        return {CommandType::REMOVE, key, ""};
     }
 
     if(command == "EXISTS"){
