@@ -41,20 +41,36 @@ Command CommandParser::parse(const std::string& input) {
 
     if (command == "SET") {
 
-        if (!(ss >> key >> value)) {
+    if (!(ss >> key >> value)) {
+        throw std::invalid_argument(
+            "SET requires key and value"
+        );
+    }
+
+    int ttl = 0;
+
+    if (ss >> ttl) {
+
+        if (ttl <= 0) {
             throw std::invalid_argument(
-                "SET requires key and value"
+                "TTL must be greater than 0"
             );
         }
 
         if (ss >> extra) {
             throw std::invalid_argument(
-                "SET accepts exactly one key and one value"
+                "SET accepts key, value and optional TTL"
             );
         }
-
-        return {CommandType::SET, key, value};
     }
+
+    return {
+        CommandType::SET,
+        key,
+        value,
+        ttl
+    };
+}
 
     if (command == "GET") {
 

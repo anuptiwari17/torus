@@ -1,30 +1,81 @@
 #include "KeyValueStore.h"
 
-
-//average complexity in unordered_set : SET => O(1), GET => O(1), EXISTS => O(1), REMOVE => O(1)
-void KeyValueStore::set(const std::string& key, const std::string& value){
-
+void KeyValueStore::set(
+    const std::string& key,
+    const std::string& value
+) {
     std::lock_guard<std::mutex> lock(mutex);
-    data[key] = value;
+
+    data[key] = {
+        value,
+        {},
+        false
+    };
 }
 
-std::string KeyValueStore::get(const std::string& key) const{
-    auto it = data.find(key);    //why i am using find instead of data[key], kyuki operator[] can create the key if it doesn't exist.
-
+void KeyValueStore::set(
+    const std::string& key,
+    const std::string& value,
+    int ttlSeconds
+) {
     std::lock_guard<std::mutex> lock(mutex);
-    if(it == data.end()){
+
+    data[key] = {
+        value,
+        std::chrono::steady_clock::now()
+            + std::chrono::seconds(ttlSeconds),
+        true
+    };
+}
+
+std::string KeyValueStore::get(
+    const std::string& key
+) {
+    std::lock_guard<std::mutex> lock(mutex);
+
+    auto it = data.find(key);
+
+    if (it == data.end()) {
         return "(nil)";
     }
-    return it->second;
+
+    if (
+        it->second.hasExpiry &&
+        std::chrono::steady_clock::now() >= it->second.expiry
+    ) {
+        data.erase(it);
+        return "(nil)";
+    }
+
+    return it->second.value;
 }
 
-bool KeyValueStore::exists(const std::string& key) const{
+bool KeyValueStore::exists(
+    const std::string& key
+) {
     std::lock_guard<std::mutex> lock(mutex);
-    return data.find(key) != data.end();
+
+    auto it = data.find(key);
+
+    if (it == data.end()) {
+        return false;
+    }
+
+    if (
+        it->second.hasExpiry &&
+        std::chrono::steady_clock::now() >= it->second.expiry
+    ) {
+        data.erase(it);
+        return false;
+    }
+
+    return true;
 }
 
-bool KeyValueStore::remove(const std::string& key){
-
+bool KeyValueStore::remove(
+    const std::string& key
+) {
     std::lock_guard<std::mutex> lock(mutex);
-    return data.erase(key) > 0;      //erase returns how many elements were removed, mai use true/false me convert kar diya!!
+
+    return data.erase(key) > 0;
 }

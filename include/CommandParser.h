@@ -13,6 +13,7 @@ struct Command {
     CommandType type;
     std::string key;
     std::string value;
+    int ttl = 0;
 };
 
 class CommandParser {

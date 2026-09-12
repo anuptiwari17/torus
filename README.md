@@ -320,7 +320,7 @@ The project is being developed incrementally:
 * [x] Multiple clients sequentially
 * [x] Concurrent client handling
 * [x] Thread synchronization with mutexes
-* [ ] TTL / key expiration
+* [x] TTL / key expiration
 * [ ] Persistent append-only log
 * [ ] Recovery after restart
 * [ ] LRU eviction and memory limits

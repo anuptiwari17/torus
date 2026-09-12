@@ -8,8 +8,22 @@ std::string CommandExecutor::execute(const Command& command) {
     switch (command.type) {
 
         case CommandType::SET:
-            store.set(command.key, command.value);
-            return "OK";
+
+    if (command.ttl > 0) {
+        store.set(
+            command.key,
+            command.value,
+            command.ttl
+        );
+    }
+    else {
+        store.set(
+            command.key,
+            command.value
+        );
+    }
+
+    return "OK";
 
         case CommandType::GET:
             return store.get(command.key);
