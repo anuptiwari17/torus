@@ -148,3 +148,41 @@ WSACleanup
 ### }
 
 ### DONEEEEEEEEEE  THIS THING!!
+
+
+
+
+
+
+## MESSAGE FRAMING 
+
+````md
+# Message Framing
+
+TCP is a byte stream, so it doesn't know where one command ends.
+
+We use **newline `\n` as a delimiter**:
+
+```text
+SET name anup\n
+GET name\n
+````
+
+The client adds `\n` before sending.
+
+The server:
+
+1. Stores received data in a buffer.
+2. Searches for `\n`.
+3. Extracts the complete command.
+4. Sends it to the parser.
+
+```text
+TCP → Buffer → Find \n → Command → Parser
+```
+
+
+> "used newline-delimited framing because TCP is a byte stream. The client adds `\n` to each command, and the server buffers data and extracts complete commands using the newline delimiter."
+
+```
+```
