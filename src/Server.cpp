@@ -12,6 +12,90 @@ Server::Server(int port)
       executor(store) {
 }
 
+void Server::handleClient(SOCKET clientSocket) {
+
+    std::cout << "Client connected!\n";
+
+    char buffer[1024];
+    std::string inputBuffer;
+
+    while (true) {
+
+        int bytesReceived = recv(
+            clientSocket,
+            buffer,
+            sizeof(buffer) - 1,
+            0
+        );
+
+        if (bytesReceived <= 0) {
+            break;
+        }
+
+        buffer[bytesReceived] = '\0';
+
+        inputBuffer += buffer;
+
+        size_t newlinePosition;
+
+        while (
+            (newlinePosition = inputBuffer.find('\n'))
+            != std::string::npos
+        ) {
+
+            std::string input =
+                inputBuffer.substr(0, newlinePosition);
+
+            inputBuffer.erase(
+                0,
+                newlinePosition + 1
+            );
+
+            if (input.empty()) {
+                continue;
+            }
+
+            std::cout << "Received: "
+                      << input << '\n';
+
+            try {
+
+                Command command = parser.parse(input);
+
+                std::string response =
+                    executor.execute(command);
+
+                response += '\n';
+
+                send(
+                    clientSocket,
+                    response.c_str(),
+                    static_cast<int>(response.size()),
+                    0
+                );
+            }
+            catch (const std::exception& e) {
+
+                std::string error =
+                    "ERR " + std::string(e.what());
+
+                error += '\n';
+
+                send(
+                    clientSocket,
+                    error.c_str(),
+                    static_cast<int>(error.size()),
+                    0
+                );
+            }
+        }
+    }
+
+    closesocket(clientSocket);
+
+    std::cout << "Client disconnected.\n";
+}
+
 void Server::start() {
 
     WSADATA wsaData;
@@ -73,86 +157,11 @@ void Server::start() {
             continue;
         }
 
-        std::cout << "Client connected!\n";
-
-        char buffer[1024];
-        std::string inputBuffer;
-
-        while (true) {
-
-            int bytesReceived = recv(
-                clientSocket,
-                buffer,
-                sizeof(buffer) - 1,
-                0
-            );
-
-            if (bytesReceived <= 0) {
-                break;
-            }
-
-            buffer[bytesReceived] = '\0';
-
-            inputBuffer += buffer;
-
-            size_t newlinePosition;
-
-            while (
-                (newlinePosition = inputBuffer.find('\n'))
-                != std::string::npos
-            ) {
-
-                std::string input =
-                    inputBuffer.substr(0, newlinePosition);
-
-                inputBuffer.erase(
-                    0,
-                    newlinePosition + 1
-                );
-
-                if (input.empty()) {
-                    continue;
-                }
-
-                std::cout << "Received: "
-                          << input << '\n';
-
-                try {
-
-                    Command command = parser.parse(input);
-
-                    std::string response =
-                        executor.execute(command);
-
-                    response += '\n';
-
-                    send(
-                        clientSocket,
-                        response.c_str(),
-                        static_cast<int>(response.size()),
-                        0
-                    );
-                }
-                catch (const std::exception& e) {
-
-                    std::string error =
-                        "ERR " + std::string(e.what());
-
-                    error += '\n';
-
-                    send(
-                        clientSocket,
-                        error.c_str(),
-                        static_cast<int>(error.size()),
-                        0
-                    );
-                }
-            }
-        }
-
-        closesocket(clientSocket);
-
-        std::cout << "Client disconnected.\n";
+        std::thread(
+            &Server::handleClient,
+            this,
+            clientSocket
+        ).detach();
     }
 }
 

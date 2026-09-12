@@ -21,7 +21,8 @@ The project is being developed incrementally to understand how systems like Redi
 * Multiple commands per client connection
 * Newline-delimited message framing
 * Buffering of TCP data to handle incomplete or combined reads
-* Multiple clients handled sequentially
+* Multiple clients handled concurrently using threads
+* Mutex-protected shared key-value store
 
 ## Architecture
 
@@ -292,6 +293,7 @@ Each layer has a focused responsibility:
 ```text
 Server
   → handles TCP communication
+  → Creates concurrent client threads
 
 CommandParser
   → validates and parses commands
@@ -316,8 +318,8 @@ The project is being developed incrementally:
 * [x] Persistent client connections
 * [x] Newline-delimited message framing
 * [x] Multiple clients sequentially
-* [ ] Concurrent client handling
-* [ ] Thread synchronization with mutexes
+* [x] Concurrent client handling
+* [x] Thread synchronization with mutexes
 * [ ] TTL / key expiration
 * [ ] Persistent append-only log
 * [ ] Recovery after restart

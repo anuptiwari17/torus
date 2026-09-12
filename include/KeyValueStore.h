@@ -6,6 +6,7 @@
 class KeyValueStore {
 private:
     std::unordered_map<std::string, std::string> data;
+    std::mutex mutex;
 
 public:
     void set(const std::string& key, const std::string& value);

@@ -1,6 +1,7 @@
 #pragma once
 
-#include<winsock2.h>
+#include <winsock2.h>
+#include <thread>
 
 #include "CommandParser.h"
 #include "CommandExecutor.h"
@@ -14,6 +15,8 @@ private:
     KeyValueStore store;
     CommandParser parser;
     CommandExecutor executor;
+
+    void handleClient(SOCKET clientSocket);
 
 public:
     explicit Server(int port);
