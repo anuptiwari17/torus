@@ -186,3 +186,39 @@ TCP → Buffer → Find \n → Command → Parser
 
 ```
 ```
+
+
+
+
+
+
+## MULTIPLE CLIENTS
+
+### abhi server ek time pe ek hi client handle karta hai.
+
+while(true) {
+    accept client
+    handle client
+}
+
+### agar Client A already connected hai and Client B connects:
+
+Client A → server is busy handling A
+
+Client B → OS ke connection queue me wait karega
+
+listen(serverSocket, 5)
+
+yaha 5 backlog hai, basically pending connections ke liye queue.
+
+jab A disconnect karega:
+
+server → accept()
+
+then B ka connection mil jayega.
+
+### IMPORTANT
+
+listen() ka 5 matlab ye nahi ki server total sirf 5 clients handle kar sakta hai.
+
+ye pending connection queue/backlog se related hai.
