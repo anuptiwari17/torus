@@ -21,6 +21,7 @@ The project is being developed incrementally to understand how systems like Redi
 * Multiple commands per client connection
 * Newline-delimited message framing
 * Buffering of TCP data to handle incomplete or combined reads
+* Multiple clients handled sequentially
 
 ## Architecture
 
@@ -154,6 +155,36 @@ This allows the server to correctly handle cases where:
 * A command arrives in multiple TCP reads.
 * Multiple commands arrive in a single TCP read.
 
+## Multiple Clients
+
+The server now continues accepting clients after a client disconnects.
+
+```text
+Client A
+   ↓
+accept()
+   ↓
+handle A
+   ↓
+disconnect
+   ↓
+accept()
+   ↓
+Client B
+   ↓
+handle B
+   ↓
+disconnect
+   ↓
+...
+```
+
+Clients are currently handled **sequentially**, meaning the server handles one connected client at a time.
+
+If Client A is connected and being handled, Client B may wait as a pending connection until the server calls `accept()` again.
+
+Concurrent client handling using threads will be added later.
+
 ## Supported Commands
 
 ### SET
@@ -284,7 +315,7 @@ The project is being developed incrementally:
 * [x] TCP networking
 * [x] Persistent client connections
 * [x] Newline-delimited message framing
-* [ ] Multiple clients sequentially
+* [x] Multiple clients sequentially
 * [ ] Concurrent client handling
 * [ ] Thread synchronization with mutexes
 * [ ] TTL / key expiration
